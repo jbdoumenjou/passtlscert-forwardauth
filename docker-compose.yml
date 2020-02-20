@@ -1,0 +1,53 @@
+version: '3.5'
+services:
+
+  traefik:
+    image: traefik:v2.1
+    volumes:
+      - ./certs/ca.pem:/etc/traefik/crt/ca.pem:ro
+      - ./certs/traefik.pem:/etc/traefik/crt/client.pem:ro
+      - ./certs/traefik.key:/etc/traefik/crt/client.key:ro
+      - ./conf:/etc/traefik/conf
+      - /var/run/docker.sock:/var/run/docker.sock
+    command:
+      - --entrypoints.web.address=:80
+      - --entrypoints.websecure.address=:443
+      - --log.level=DEBUG
+      - --api.insecure=true
+      - --providers.docker
+      - --providers.file.directory=/etc/traefik/conf
+    ports:
+      - '443:443'
+      - '80:80'
+      - '8080:8080'
+    labels:
+      - traefik.enable=false
+    networks:
+      - net
+
+  auth:
+    image: containous/whoami
+    networks:
+      net:
+        aliases:
+          - auth
+
+  api:
+    image: containous/whoami
+    labels:
+      - traefik.port=80
+      - traefik.http.routers.router0.entrypoints=web
+      - traefik.http.routers.router0.entrypoints=websecure
+      - traefik.http.routers.router0.tls=true
+      - traefik.http.routers.router0.rule=Host(`whoami`)
+#      - traefik.http.routers.router0.middlewares=fauth@file
+    networks:
+      - net
+
+networks:
+  net:
+    name: "net"
+    driver: bridge
+    ipam:
+     config:
+       - subnet: 10.0.1.0/28

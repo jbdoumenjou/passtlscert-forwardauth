@@ -1,0 +1,17 @@
+[tls.options]
+  [tls.options.default]
+    [tls.options.default.clientAuth]
+      caFiles = ["/etc/traefik/crt/ca.pem"]
+      clientAuthType = "RequireAndVerifyClientCert"
+
+#[tlsStores.default.defaultCertificate]
+#    certFile = "/etc/traefik/crt/client.pem"
+#    keyFile  = "/etc/traefik/crt/client.key"
+#
+#[http.middlewares.fauth.forwardauth]
+#    address="http://auth"
+#    trustForwardHeader=true
+#        [http.middlewares.fauth.forwardauth.tls]
+#            ca="/etc/traefik/crt/ca.pem"
+#            cert="/etc/traefik/crt/client.pem"
+#            key="/etc/traefik/crt/client.key"
